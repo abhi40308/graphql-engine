@@ -7,6 +7,7 @@ import styles from '../../../Common/Common.scss';
 import { ReduxState } from '../../../../types';
 import { Schema } from '../../../../dataSources/types';
 import BreadCrumb from '../../../Common/Layout/BreadCrumb/BreadCrumb';
+import DatabaseCreator from './DatabaseCreator';
 
 type DatabaseDetails = {
   name: string;
@@ -19,32 +20,40 @@ type ManageDatabaseProps = {
 };
 
 type DatabaseListItemProps = {
-  btnAction: () => void;
-  btnTitle: string;
+  handleRemove: () => void;
+  handleReload: () => void;
   dbDetails: DatabaseDetails;
 };
 
 const dummyData: DatabaseListItemProps[] = [
   {
-    btnAction: () => {},
-    btnTitle: 'Manage',
+    handleRemove: () => {},
+    handleReload: () => {},
     dbDetails: { name: 'myDb', type: 'postgres', url: 'something' },
   },
   {
-    btnAction: () => {},
-    btnTitle: 'Remove',
+    handleRemove: () => {},
+    handleReload: () => {},
     dbDetails: { name: 'dbdbdbdb', type: 'mysql', url: 'someLink' },
   },
 ];
 
 const DatabaseListItem: React.FC<DatabaseListItemProps> = ({
-  btnAction,
-  btnTitle = 'Remove',
+  handleReload,
+  handleRemove,
   dbDetails,
 }) => (
   <div className={styles.db_list_item}>
-    <Button size="xs" color="white" onClick={btnAction}>
-      {btnTitle}
+    <Button size='xs' color='white' onClick={handleReload}>
+      Reload
+    </Button>
+    <Button
+      className={styles.db_list_content}
+      size='xs'
+      color='white'
+      onClick={handleRemove}
+    >
+      Remove
     </Button>
     <div className={styles.db_list_content}>
       <b>
@@ -66,24 +75,22 @@ const crumbs = [
   },
 ];
 
-const ManageDatabase: React.FC<ManageDatabaseProps> = ({ schemaList }) => {
-  const currentSchemaOptions = schemaList.map(schema => (
-    <option>{schema.schema_name}</option>
-  ));
+const ManageDatabase: React.FC<ManageDatabaseProps> = () => {
   const dataList = dummyData.map(data => <DatabaseListItem {...data} />);
+  const databaseTypes = ['postgres', 'mysql'];
 
   return (
     <div
       className={`container-fluid ${styles.padd_left_remove} ${styles.padd_top} ${styles.manage_dbs_page}`}
     >
       <div className={styles.padd_left}>
-        <Helmet title="Manage - Data | Hasura" />
+        <Helmet title='Manage - Data | Hasura' />
         <BreadCrumb breadCrumbs={crumbs} />
         <div className={styles.display_flex}>
           <h2 className={`${styles.headerText} ${styles.display_inline}`}>
             Manage Databases
           </h2>
-          <Button color="yellow" size="md" className={styles.add_mar_left}>
+          <Button color='yellow' size='md' className={styles.add_mar_left}>
             Add Database
           </Button>
         </div>
@@ -95,29 +102,7 @@ const ManageDatabase: React.FC<ManageDatabaseProps> = ({ schemaList }) => {
           <div className={styles.data_list_container}>{dataList}</div>
           <hr />
         </div>
-        <div className={`${styles.manage_db_content}`}>
-          <h3
-            className={`${styles.heading_text} ${styles.remove_pad_bottom} ${styles.add_mar_bottom}`}
-          >
-            Schemas
-          </h3>
-          Current Schemas:
-          <select className={styles.add_mar_left}>
-            {currentSchemaOptions}
-          </select>
-          <br />
-          <div
-            className={`${styles.add_mar_top} ${styles.display_inline} ${styles.display_flex}`}
-          >
-            <Button color="white" size="xs">
-              Create
-            </Button>
-            <Button color="white" size="xs" className={styles.add_mar_left}>
-              Delete
-            </Button>
-          </div>
-        </div>
-        <hr />
+        <DatabaseCreator databaseTypes={databaseTypes} />
       </div>
     </div>
   );
